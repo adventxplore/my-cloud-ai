@@ -3,14 +3,16 @@ import google.generativeai as genai
 from duckduckgo_search import DDGS
 import pypdf
 
+# Set standard page structure
 st.set_page_config(page_title="Global AI Workspace", page_icon="🤖", layout="centered")
-st.title("🤖 My Global AI Workspace")
+st.title("🤖 Cloud AI Workspace")
 st.caption("🚀 Universal Cloud AI Assistant Interface")
 
+# Initialize Cloud Token Key Channel
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 else:
-    st.error("Missing Gemini API Key! Configure it in your Streamlit Secrets.")
+    st.error("Missing Gemini API Key! Configure it in your Streamlit Secrets panel.")
 
 def run_web_search(query):
     try:
@@ -20,6 +22,7 @@ def run_web_search(query):
     except:
         return "Web search rate limit reached."
 
+# Maintain chat message state array
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -48,13 +51,13 @@ with st.sidebar:
         except Exception as e:
             st.error(f"❌ PDF read error: {e}")
 
-# --- MASTER CONVERSATIONAL ASSISTANT ---
-# Display Past Chat History
+# --- MASTER CONVERSATIONAL ASSISTANT INTERFACE ---
+# Render past messages safely
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Text Input Handler
+# Track new chat inputs
 if user_prompt := st.chat_input("Message Cloud AI..."):
     with st.chat_message("user"):
         st.markdown(user_prompt)
@@ -71,10 +74,9 @@ if user_prompt := st.chat_input("Message Cloud AI..."):
 
                 model = genai.GenerativeModel("gemini-1.5-flash")
                 response = model.generate_content(final_prompt)
-                answer_text = response.text
                 
-                st.markdown(answer_text)
-                st.session_state.messages.append({"role": "assistant", "content": answer_text})
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
             except Exception as e:
                 st.error(f"❌ Cloud Connection Error: {e}")
     st.rerun()
