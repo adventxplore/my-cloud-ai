@@ -2,9 +2,6 @@ import streamlit as st
 import google.generativeai as genai
 from duckduckgo_search import DDGS
 import pypdf
-import requests
-from io import BytesIO
-from gtts import gTTS  # Web-safe voice streaming player card
 
 st.set_page_config(page_title="Global AI Workspace", page_icon="🤖", layout="centered")
 st.title("🤖 My Global AI Workspace")
@@ -38,10 +35,6 @@ with st.sidebar:
     web_search_active = st.checkbox("🔍 Enable Live Web Search", value=False)
         
     st.markdown("---")
-    st.subheader("🔊 Voice Engine")
-    speak_output = st.checkbox("🔊 Read answers out loud", value=False)
-        
-    st.markdown("---")
     st.subheader("📁 Document Analysis")
     uploaded_file = st.file_uploader("Upload a PDF to analyze", type=["pdf"])
     
@@ -56,11 +49,12 @@ with st.sidebar:
             st.error(f"❌ PDF read error: {e}")
 
 # --- MASTER CONVERSATIONAL ASSISTANT ---
-# Render Past Chat Threads
+# Display Past Chat History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# Text Input Handler
 if user_prompt := st.chat_input("Message Cloud AI..."):
     with st.chat_message("user"):
         st.markdown(user_prompt)
@@ -81,13 +75,6 @@ if user_prompt := st.chat_input("Message Cloud AI..."):
                 
                 st.markdown(answer_text)
                 st.session_state.messages.append({"role": "assistant", "content": answer_text})
-                
-                # Web-Safe Voice Synthesis Out loud player streaming module
-                if speak_output:
-                    tts = gTTS(text=answer_text, lang='en')
-                    sound_fp = BytesIO()
-                    tts.write_to_fp(sound_fp)
-                    st.audio(sound_fp, format="audio/mp3", autoplay=True)
             except Exception as e:
                 st.error(f"❌ Cloud Connection Error: {e}")
     st.rerun()
